@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Whack-a-Mole Game
 
 A Flutter-based Whack-a-Mole game using GetX for state management.
@@ -53,3 +54,7 @@ assets/
 1. Tap "Start Game" to begin
 2. Moles (🐹) will appear randomly in holes every second
 3. Tap the mole to score points
+=======
+# whack_a_mole_game
+A fun and interactive Whack-a-Mole game built entirely with Flutter and Dart, using GetX for state management. Test your reflexes by tapping on the moles as they pop up from random holes before the timer runs out! ⏰
+>>>>>>> ec9a4f19d47055a9d09f25071247b33d8252f17a
