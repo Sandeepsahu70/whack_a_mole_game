@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flame_audio/flame_audio.dart';
 
+enum DifficultyLevel { easy, medium, hard, expert }
+
 class WhackAMoleController extends GetxController {
   // Game state
   final RxInt score = 0.obs;
@@ -11,6 +13,7 @@ class WhackAMoleController extends GetxController {
   final RxBool isGameActive = false.obs;
   final RxInt activeMoleIndex = (-1).obs; // -1 means no mole visible
   final RxBool isMoleVisible = false.obs;
+  final Rx<DifficultyLevel> currentDifficulty = DifficultyLevel.easy.obs;
 
   // Timers
   Timer? _gameTimer;
@@ -18,8 +21,35 @@ class WhackAMoleController extends GetxController {
 
   // Constants
   static const int gameDuration = 30;
-  static const int moleInterval = 1;
-  static const int totalHoles = 9;
+  static const int totalHoles = 16; // Changed to 4x4 grid
+
+  // Difficulty settings
+  Map<DifficultyLevel, Map<String, dynamic>> get difficultySettings => {
+        DifficultyLevel.easy: {
+          'moleInterval': 1500, // 1.5 seconds
+          'moleVisibleTime': 1200, // 1.2 seconds
+          'name': 'Easy',
+          'color': Colors.green,
+        },
+        DifficultyLevel.medium: {
+          'moleInterval': 1000, // 1 second
+          'moleVisibleTime': 900, // 0.9 seconds
+          'name': 'Medium',
+          'color': Colors.orange,
+        },
+        DifficultyLevel.hard: {
+          'moleInterval': 700, // 0.7 seconds
+          'moleVisibleTime': 600, // 0.6 seconds
+          'name': 'Hard',
+          'color': Colors.red,
+        },
+        DifficultyLevel.expert: {
+          'moleInterval': 500, // 0.5 seconds
+          'moleVisibleTime': 400, // 0.4 seconds
+          'name': 'Expert',
+          'color': Colors.purple,
+        },
+      };
 
   @override
   void onInit() {
@@ -55,7 +85,10 @@ class WhackAMoleController extends GetxController {
   }
 
   void _startMoleTimer() {
-    _moleTimer = Timer.periodic(const Duration(seconds: moleInterval), (timer) {
+    final settings = difficultySettings[currentDifficulty.value]!;
+    final interval = settings['moleInterval'] as int;
+
+    _moleTimer = Timer.periodic(Duration(milliseconds: interval), (timer) {
       if (isGameActive.value) {
         _showRandomMole();
       }
@@ -75,6 +108,16 @@ class WhackAMoleController extends GetxController {
     final random = Random();
     activeMoleIndex.value = random.nextInt(totalHoles);
     isMoleVisible.value = true;
+
+    // Auto-hide mole after visible time based on difficulty
+    final settings = difficultySettings[currentDifficulty.value]!;
+    final visibleTime = settings['moleVisibleTime'] as int;
+
+    Timer(Duration(milliseconds: visibleTime), () {
+      if (activeMoleIndex.value != -1 && isMoleVisible.value) {
+        hideMole();
+      }
+    });
   }
 
   void hideMole() {
@@ -150,9 +193,23 @@ class WhackAMoleController extends GetxController {
           '🎮 Game Over!',
           style: TextStyle(color: Colors.white),
         ),
-        content: Text(
-          'Final Score: ${score.value}',
-          style: const TextStyle(color: Colors.white70),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Final Score: ${score.value}',
+              style: const TextStyle(color: Colors.white70, fontSize: 18),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Difficulty: ${difficultySettings[currentDifficulty.value]!['name']}',
+              style: TextStyle(
+                color: difficultySettings[currentDifficulty.value]!['color'],
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -186,4 +243,15 @@ class WhackAMoleController extends GetxController {
       barrierDismissible: false,
     );
   }
+
+  void changeDifficulty(DifficultyLevel newDifficulty) {
+    if (!isGameActive.value) {
+      currentDifficulty.value = newDifficulty;
+    }
+  }
+
+  String get difficultyName =>
+      difficultySettings[currentDifficulty.value]!['name'];
+  Color get difficultyColor =>
+      difficultySettings[currentDifficulty.value]!['color'];
 }
