@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flame_audio/flame_audio.dart';
 
-class GameController extends GetxController {
+class WhackAMoleController extends GetxController {
   // Game state
   final RxInt score = 0.obs;
   final RxInt timeLeft = 30.obs;
@@ -42,7 +42,7 @@ class GameController extends GetxController {
     score.value = 0;
 
     // Start game countdown timer
-    _gameTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _gameTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (timeLeft.value > 0) {
         timeLeft.value--;
       } else {
@@ -55,7 +55,7 @@ class GameController extends GetxController {
   }
 
   void _startMoleTimer() {
-    _moleTimer = Timer.periodic(Duration(seconds: moleInterval), (timer) {
+    _moleTimer = Timer.periodic(const Duration(seconds: moleInterval), (timer) {
       if (isGameActive.value) {
         _showRandomMole();
       }
@@ -126,7 +126,7 @@ class GameController extends GetxController {
       FlameAudio.play('hit.wav');
     } catch (e) {
       // Sound file not found, continue without sound
-      print('Hit sound not available: $e');
+      debugPrint('Hit sound not available: $e');
     }
   }
 
@@ -135,22 +135,51 @@ class GameController extends GetxController {
       FlameAudio.play('game_over.wav');
     } catch (e) {
       // Sound file not found, continue without sound
-      print('Game over sound not available: $e');
+      debugPrint('Game over sound not available: $e');
     }
   }
 
   void _showGameOverDialog() {
     Get.dialog(
       AlertDialog(
-        title: Text('Game Over!'),
-        content: Text('Final Score: ${score.value}'),
+        backgroundColor: const Color(0xFF1A1A2E),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: const Text(
+          '🎮 Game Over!',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: Text(
+          'Final Score: ${score.value}',
+          style: const TextStyle(color: Colors.white70),
+        ),
         actions: [
           TextButton(
             onPressed: () {
               Get.back();
               resetGame();
             },
-            child: Text('Restart'),
+            child: const Text(
+              'Play Again',
+              style: TextStyle(
+                color: Colors.greenAccent,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Get.back();
+              Get.back(); // Go back to home screen
+            },
+            child: const Text(
+              'Home',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),

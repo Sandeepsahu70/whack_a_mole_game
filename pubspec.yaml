@@ -1,5 +1,5 @@
-name: whack_a_mole_game
-description: "A Flutter Whack-a-Mole game using GetX state management."
+name: flutter_game_hub
+description: "A Flutter Game Hub with multiple mini-games using GetX state management."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -33,6 +33,8 @@ dependencies:
   cupertino_icons: ^1.0.6
   get: ^4.6.6
   flame_audio: ^2.1.6
+  google_fonts: ^6.1.0
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:

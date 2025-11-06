@@ -1,31 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/game_controller.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../controllers/whack_a_mole_controller.dart';
 
 class WhackAMoleScreen extends StatelessWidget {
-  final GameController gameController = Get.put(GameController());
+  const WhackAMoleScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final gameController = Get.put(WhackAMoleController());
+
     return Scaffold(
-      backgroundColor: Colors.green[100],
-      appBar: AppBar(
-        title: Text('Whack-a-Mole'),
-        backgroundColor: Colors.green[700],
-        elevation: 0,
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF2E7D32),
+              Color(0xFF388E3C),
+              Color(0xFF4CAF50),
+            ],
+          ),
+        ),
+        child: SafeArea(
           child: Column(
             children: [
-              _buildGameStats(),
-              SizedBox(height: 20),
+              _buildAppBar(),
               Expanded(
-                child: _buildGameGrid(),
+                child: _buildGameContent(gameController),
               ),
-              SizedBox(height: 20),
-              _buildControlButton(),
             ],
           ),
         ),
@@ -33,17 +37,68 @@ class WhackAMoleScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildGameStats() {
+  Widget _buildAppBar() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        children: [
+          IconButton(
+            onPressed: () => Get.back(),
+            icon: const Icon(
+              Icons.arrow_back_ios,
+              color: Colors.white,
+              size: 24,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              '🐹 WHACK A MOLE',
+              style: GoogleFonts.orbitron(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(width: 48), // Balance the back button
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGameContent(WhackAMoleController gameController) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          _buildGameStats(gameController),
+          const SizedBox(height: 20),
+          Expanded(
+            child: _buildGameGrid(gameController),
+          ),
+          const SizedBox(height: 20),
+          _buildControlButton(gameController),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGameStats(WhackAMoleController gameController) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
+        color: Colors.white.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.3),
+          width: 2,
+        ),
+        boxShadow: const [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: Offset(0, 2),
+            color: Colors.black26,
+            blurRadius: 10,
+            offset: Offset(0, 5),
           ),
         ],
       ),
@@ -63,26 +118,26 @@ class WhackAMoleScreen extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: GoogleFonts.orbitron(
             fontSize: 16,
-            color: Colors.grey[600],
+            color: Colors.white70,
             fontWeight: FontWeight.w500,
           ),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(
           value,
-          style: TextStyle(
-            fontSize: 24,
+          style: GoogleFonts.orbitron(
+            fontSize: 28,
             fontWeight: FontWeight.bold,
-            color: Colors.green[700],
+            color: Colors.white,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildGameGrid() {
+  Widget _buildGameGrid(WhackAMoleController gameController) {
     return LayoutBuilder(
       builder: (context, constraints) {
         double gridSize = constraints.maxWidth < constraints.maxHeight
@@ -90,19 +145,19 @@ class WhackAMoleScreen extends StatelessWidget {
             : constraints.maxHeight;
 
         return Center(
-          child: Container(
+          child: SizedBox(
             width: gridSize,
             height: gridSize,
             child: GridView.builder(
-              physics: NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
               ),
               itemCount: 9,
               itemBuilder: (context, index) {
-                return _buildHole(index);
+                return _buildHole(index, gameController);
               },
             ),
           ),
@@ -111,7 +166,7 @@ class WhackAMoleScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHole(int index) {
+  Widget _buildHole(int index, WhackAMoleController gameController) {
     return Obx(() {
       bool hasMole = gameController.activeMoleIndex.value == index &&
           gameController.isMoleVisible.value;
@@ -119,38 +174,45 @@ class WhackAMoleScreen extends StatelessWidget {
       return GestureDetector(
         onTap: () => gameController.hitMole(index),
         child: AnimatedContainer(
-          duration: Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
-            color: Colors.brown[600],
+            color: Colors.brown[800],
             borderRadius: BorderRadius.circular(50),
             border: Border.all(
-              color: Colors.brown[800]!,
+              color: Colors.brown[900]!,
               width: 3,
             ),
-            boxShadow: [
+            boxShadow: const [
               BoxShadow(
-                color: Colors.black26,
-                blurRadius: 4,
-                offset: Offset(0, 2),
+                color: Colors.black54,
+                blurRadius: 8,
+                offset: Offset(0, 4),
               ),
             ],
           ),
           child: Center(
             child: AnimatedScale(
               scale: hasMole ? 1.0 : 0.0,
-              duration: Duration(milliseconds: 150),
+              duration: const Duration(milliseconds: 150),
               curve: Curves.bounceOut,
               child: AnimatedOpacity(
                 opacity: hasMole ? 1.0 : 0.0,
-                duration: Duration(milliseconds: 100),
+                duration: const Duration(milliseconds: 100),
                 child: Container(
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
                     color: Colors.brown[400],
                     borderRadius: BorderRadius.circular(30),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 4,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
                   ),
-                  child: Center(
+                  child: const Center(
                     child: Text(
                       '🐹',
                       style: TextStyle(fontSize: 32),
@@ -165,24 +227,24 @@ class WhackAMoleScreen extends StatelessWidget {
     });
   }
 
-  Widget _buildControlButton() {
+  Widget _buildControlButton(WhackAMoleController gameController) {
     return Obx(() {
       bool isGameActive = gameController.isGameActive.value;
 
       return ElevatedButton(
         onPressed: isGameActive ? null : () => gameController.startGame(),
         style: ElevatedButton.styleFrom(
-          backgroundColor: isGameActive ? Colors.grey : Colors.green[700],
-          foregroundColor: Colors.white,
-          padding: EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+          backgroundColor: isGameActive ? Colors.grey[600] : Colors.white,
+          foregroundColor: isGameActive ? Colors.white : Colors.green[700],
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25),
           ),
-          elevation: 4,
+          elevation: 8,
         ),
         child: Text(
-          isGameActive ? 'Game in Progress...' : 'Start Game',
-          style: TextStyle(
+          isGameActive ? 'Game in Progress...' : 'START GAME',
+          style: GoogleFonts.orbitron(
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),

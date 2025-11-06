@@ -1,21 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'screens/whack_a_mole_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'screens/home_screen.dart';
 
 void main() {
-  runApp(WhackAMoleApp());
+  runApp(const GameHubApp());
 }
 
-class WhackAMoleApp extends StatelessWidget {
+class GameHubApp extends StatelessWidget {
+  const GameHubApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Whack-a-Mole Game',
+      title: 'Flutter Game Hub',
       theme: ThemeData(
-        primarySwatch: Colors.green,
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+          brightness: Brightness.dark,
+        ),
+        textTheme: GoogleFonts.orbitronTextTheme(
+          Theme.of(context).textTheme,
+        ).apply(
+          bodyColor: Colors.white,
+          displayColor: Colors.white,
+        ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: WhackAMoleScreen(),
+      home: const HomeScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
